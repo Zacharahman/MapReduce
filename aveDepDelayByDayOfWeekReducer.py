@@ -1,42 +1,39 @@
 #!/usr/bin/env python
-
 import sys
 
-last_day = None
+last_key = None
 total_delay = 0
 count = 0
 
-# Iterate over each key-value pair from the mapper
+# Iterate over each line of input
 for line in sys.stdin:
     line = line.strip()
-    day, delay = line.split("\t")
+    key, value = line.split("\t")
 
-    # Handle missing values (NA)
-    if delay == "NA":
+    # Skip lines with non-numeric values
+    if not value.isdigit():
         continue
 
-    delay = int(delay)
+    # Convert the value to an integer
+    value = int(value)
 
-    # If this is the first iteration
-    if not last_day:
-        last_day = day
-        total_delay = delay
-        count = 1
-    # If the day is the same as the last one
-    elif day == last_day:
-        total_delay += delay
-        count += 1
-    # If the day changes, output the result for the previous day
-    else:
-        avg_delay = total_delay / count
-        print(f"{last_day}\t{avg_delay}")
+    # If this is the first iteration or key has changed
+    if last_key != key:
+        # Output the average delay for the previous key
+        if last_key:
+            average_delay = total_delay / count
+            print(f"{last_key}\t{average_delay}")
 
-        # Reset variables for the new day
-        last_day = day
-        total_delay = delay
-        count = 1
+        # Reset count and total_delay for the new key
+        last_key = key
+        count = 0
+        total_delay = 0
 
-# Output the result for the last day
-if last_day:
-    avg_delay = total_delay / count
-    print(f"{last_day}\t{avg_delay}")
+    # Accumulate delay and count
+    total_delay += value
+    count += 1
+
+# Output the average delay for the last key
+if last_key:
+    average_delay = total_delay / count
+    print(f"{last_key}\t{average_delay}")
